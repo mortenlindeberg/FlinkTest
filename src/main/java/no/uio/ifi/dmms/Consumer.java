@@ -6,7 +6,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
-
+import java.util.ArrayList;
 
 public class Consumer extends Thread {
     private int port;
@@ -18,13 +18,13 @@ public class Consumer extends Thread {
     }
 
     public void run() {
+
         System.out.println("- Starting Flink - ");
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStream<String> text = env.socketTextStream(hostName, port);
 
         DataStream<Tuple2<Long, Double>> stream =
                 text.flatMap(new LineSplitter())
-                        //.keyBy(1)
                         .timeWindowAll(Time.seconds(5))
                         .max(1);
 
@@ -45,5 +45,4 @@ public class Consumer extends Thread {
             out.collect(new Tuple2(Long.parseLong(attributes[0]), Double.parseDouble(attributes[3])));
         }
     }
-
 }

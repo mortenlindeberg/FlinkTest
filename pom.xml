@@ -110,7 +110,7 @@ under the License.
 			<artifactId>xercesImpl</artifactId>
 			<version>${xerces.version}</version>
 		</dependency>
-	</dependencies>
+    </dependencies>
 
 	<profiles>
 		<profile>

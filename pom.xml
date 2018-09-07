@@ -25,8 +25,8 @@ under the License.
 	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>Flink Quickstart Job</name>
-	<url>http://www.myorganization.org</url>
+	<name>Flink Test</name>
+	<url>https://www.mn.uio.no/ifi/forskning/grupper/dmms/</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -34,6 +34,7 @@ under the License.
 		<slf4j.version>1.7.25</slf4j.version>
 		<log4j.version>1.2.17</log4j.version>
 		<scala.binary.version>2.13.0</scala.binary.version>
+		<xerces.version>2.12.0</xerces.version>
 	</properties>
 
 	<repositories>
@@ -103,6 +104,11 @@ under the License.
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>${xerces.version}</version>
 		</dependency>
 	</dependencies>
 

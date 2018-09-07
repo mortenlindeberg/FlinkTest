@@ -22,7 +22,7 @@ public class Consumer extends Thread {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStream<String> text = env.socketTextStream(hostName, port);
 
-        DataStream<Tuple2<Long, Integer>> stream =
+        DataStream<Tuple2<Long, Double>> stream =
                 text.flatMap(new LineSplitter())
                         //.keyBy(1)
                         .timeWindowAll(Time.seconds(5))
@@ -38,11 +38,11 @@ public class Consumer extends Thread {
         }
     }
 
-    public static final class LineSplitter implements FlatMapFunction<String, Tuple2<Long, Integer>> {
+    public static final class LineSplitter implements FlatMapFunction<String, Tuple2<Long, Double>> {
 
-        public void flatMap(String value, Collector<Tuple2<Long, Integer>> out) {
+        public void flatMap(String value, Collector<Tuple2<Long, Double>> out) {
             String[] attributes = value.split(",");
-            out.collect(new Tuple2(Long.parseLong(attributes[0]), Integer.parseInt(attributes[1])));
+            out.collect(new Tuple2(Long.parseLong(attributes[0]), Double.parseDouble(attributes[3])));
         }
     }
 

@@ -1,0 +1,21 @@
+This application will try to use the Elasticsearch sink of Apache flink, hence will reguire certain indexes to exist (and be rewritten in case you run the program a seoncd time):
+
+curl -X DELETE "localhost:9200/gpx"
+
+
+curl -X PUT "http://localhost:9200/gpx" -H 'Content-Type: application/json' -d'
+{
+    "settings" : {
+        "number_of_shards" : 1
+    },
+    "mappings" : {
+        "power" : {
+            "properties" : {
+                "time" : { "type" : "date", "format" : "epoch_second" },
+                "power" : { "type" : "double" },
+                "location" : { "type" : "geo_point" }
+            }
+        }
+    }
+}
+'

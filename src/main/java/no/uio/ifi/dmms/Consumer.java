@@ -1,9 +1,7 @@
 package no.uio.ifi.dmms;
 
-import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -15,8 +13,6 @@ import org.apache.flink.util.Collector;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Requests;
-import org.elasticsearch.common.collect.Tuple;
-
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
@@ -32,7 +28,6 @@ public class Consumer extends Thread {
     }
 
     public void run() {
-
         System.out.println("- Starting Flink - ");
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStream<String> text = env.socketTextStream(hostName, port);
@@ -48,7 +43,7 @@ public class Consumer extends Thread {
         List<HttpHost> httpHosts = new ArrayList<>();
         httpHosts.add(new HttpHost("127.0.0.1", 9200, "http"));
         ElasticsearchSink.Builder<Tuple4<Long, Double, Float, Float>> sinkBuilder =
-                new ElasticsearchSink.Builder<Tuple4<Long, Double, Float, Float>>(httpHosts,new PowerInserter());
+                new ElasticsearchSink.Builder<Tuple4<Long, Double, Float, Float>>(httpHosts, new PowerInserter());
         sinkBuilder.setBulkFlushMaxActions(1);
         stream.addSink(sinkBuilder.build());
 
@@ -88,27 +83,3 @@ public class Consumer extends Thread {
         }
     }
 }
-
-/*
-curl -X DELETE "localhost:9200/gpx"
-
-
-curl -X PUT "http://localhost:9200/gpx" -H 'Content-Type: application/json' -d'
-{
-    "settings" : {
-        "number_of_shards" : 1
-    },
-    "mappings" : {
-        "power" : {
-            "properties" : {
-                "time" : { "type" : "date", "format" : "epoch_second" },
-                "power" : { "type" : "double" },
-                "location" : { "type" : "geo_point" }
-            }
-        }
-    }
-}
-'
-
-
- */

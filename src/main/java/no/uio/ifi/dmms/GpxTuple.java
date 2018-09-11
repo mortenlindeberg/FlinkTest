@@ -72,6 +72,6 @@ public class GpxTuple {
     public String getPosixString() {
         LocalDateTime time = LocalDateTime.parse(this.time, TIME_FORMATTER);
         ZoneId zoneId = ZoneId.systemDefault();
-        return time.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()+"";
+        return time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond()+"";
     }
 }

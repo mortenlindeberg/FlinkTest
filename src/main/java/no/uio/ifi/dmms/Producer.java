@@ -43,7 +43,6 @@ public class Producer extends Thread {
         while (true) {
             String eventString = System.nanoTime()+","+i++;
             send(eventString);
-            //System.out.println("Sent "+eventString);
             try {
                 sleep(1000);
             } catch (InterruptedException e) {

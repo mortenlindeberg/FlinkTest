@@ -1,7 +1,9 @@
 package no.uio.ifi.dmms;
 
+import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -32,18 +34,18 @@ public class Consumer extends Thread {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStream<String> text = env.socketTextStream(hostName, port);
 
-        DataStream<Tuple4<Long, Double, Float, Float>> stream =
+        DataStream<Tuple5<Long, Double, Float, Float, Long>> stream =
                 text.flatMap(new LineSplitter())
                         .timeWindowAll(Time.seconds(1))
-                        .max(1);
+                        .aggregate(new AveragePower());
 
         stream.print();
 
 
         List<HttpHost> httpHosts = new ArrayList<>();
         httpHosts.add(new HttpHost("127.0.0.1", 9200, "http"));
-        ElasticsearchSink.Builder<Tuple4<Long, Double, Float, Float>> sinkBuilder =
-                new ElasticsearchSink.Builder<Tuple4<Long, Double, Float, Float>>(httpHosts, new PowerInserter());
+        ElasticsearchSink.Builder<Tuple5<Long, Double, Float, Float, Long>> sinkBuilder =
+                new ElasticsearchSink.Builder<Tuple5<Long, Double, Float, Float, Long>>(httpHosts, new PowerInserter());
         sinkBuilder.setBulkFlushMaxActions(1);
         stream.addSink(sinkBuilder.build());
 
@@ -52,6 +54,35 @@ public class Consumer extends Thread {
             env.execute("Flink finds max value each second");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private static final class AveragePower
+            implements AggregateFunction<Tuple4<Long, Double, Float, Float>,Tuple5<Long, Double, Float, Float, Long>, Tuple5<Long, Double, Float, Float, Long>> {
+
+        private Long count;
+
+        public AveragePower() {
+            this.count = 0L;
+        }
+        @Override
+        public Tuple5<Long, Double, Float, Float, Long> createAccumulator() {
+            return new Tuple5<>(0L,0D,0F,0F,0L);
+        }
+
+        @Override
+        public Tuple5<Long, Double, Float, Float, Long> add(Tuple4<Long, Double, Float, Float> value, Tuple5<Long, Double, Float, Float, Long> ac) {
+            return new Tuple5<>(value.f0 + ac.f0, value.f1 + ac.f1, value.f2 + ac.f2, value.f3 + ac.f3, ac.f4 + 1L);
+        }
+
+        @Override
+        public Tuple5<Long, Double, Float, Float, Long> merge(Tuple5<Long, Double, Float, Float, Long> a, Tuple5<Long, Double, Float, Float, Long> b) {
+            return new Tuple5<>(a.f0 + b.f0, a.f1 + b.f1, a.f2 + b.f2, a.f3 + b.f3, a.f4 + b.f4);
+        }
+
+        @Override
+        public Tuple5<Long, Double, Float, Float, Long> getResult(Tuple5<Long, Double, Float, Float, Long> ac) {
+            return new Tuple5<>((Long)(ac.f0 / ac.f4),(Double)(ac.f1 / ac.f4), (Float)(ac.f2 / ac.f4), (Float)(ac.f3 / ac.f4), (Long)ac.f4);
         }
     }
 
@@ -67,13 +98,14 @@ public class Consumer extends Thread {
         }
     }
 
-    public static class PowerInserter implements ElasticsearchSinkFunction<Tuple4<Long, Double, Float, Float>> {
+    public static class PowerInserter implements ElasticsearchSinkFunction<Tuple5<Long, Double, Float, Float, Long>> {
         @Override
-        public void process(Tuple4<Long, Double, Float, Float> tuple, RuntimeContext ctx, RequestIndexer indexer) {
+        public void process(Tuple5<Long, Double, Float, Float, Long> tuple, RuntimeContext ctx, RequestIndexer indexer) {
             Map<String, String> json = new HashMap<>();
             json.put("time", tuple.f0.toString());
             json.put("power", tuple.f1.toString());
             json.put("location", tuple.f2+","+tuple.f3);
+            json.put("count", tuple.f4.toString());
 
             IndexRequest rqst = Requests.indexRequest()
                     .index("gpx")

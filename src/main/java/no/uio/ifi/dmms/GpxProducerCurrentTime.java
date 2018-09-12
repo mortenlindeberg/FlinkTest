@@ -5,8 +5,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
@@ -14,13 +14,13 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class GPXProducer extends Thread {
+public class GpxProducerCurrentTime extends Thread {
     private String filename;
     private int remotePort;
     private ServerSocket serverSocket;
     private Socket clientSocket;
 
-    public GPXProducer() {
+    public GpxProducerCurrentTime() {
         this.filename = "trace.gpx";
         this.remotePort = 1080;
     }
@@ -87,9 +87,11 @@ public class GPXProducer extends Thread {
 
                 for (int j = 0; j < pointElements.getLength(); j++) {
                     Node currentPointElement = pointElements.item(j);
-                    if (currentPointElement.getNodeName().equals("time"))
-                        tuple.setTime(currentPointElement.getTextContent());
-                    else if (currentPointElement.getNodeName().equals("extensions")) {
+
+                    /* Sets the timestamp of each tuple based upon the current time of this machine */
+                    tuple.setTime(new Long(System.currentTimeMillis() / 1000L).toString());
+
+                    if (currentPointElement.getNodeName().equals("extensions")) {
                         NodeList extensionElements = currentPointElement.getChildNodes();
 
                         for (int k = 0; k < extensionElements.getLength(); k++) {
@@ -113,7 +115,7 @@ public class GPXProducer extends Thread {
                     }
 
                 }
-                send(tuple.getPosixString()+","+tuple.getLat()+","+tuple.getLon()+","+tuple.getPower()+","+tuple.getCadence()+","+tuple.getHeartrate()+","+tuple.getTemp());
+                send(tuple.getTime() + "," + tuple.getLat() + "," + tuple.getLon() + "," + tuple.getPower() + "," + tuple.getCadence() + "," + tuple.getHeartrate() + "," + tuple.getTemp());
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
@@ -121,6 +123,6 @@ public class GPXProducer extends Thread {
                 }
             }
         }
-        System.out.println(" -- Finished Sending "+i+" tuples--");
+        System.out.println(" -- Finished Sending " + i + " tuples--");
     }
 }

@@ -3,7 +3,8 @@ package no.uio.ifi.dmms;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        GPXProducer producer = new GPXProducer();
+        //GPXProducer producer = new GPXProducer();
+        GpxProducerCurrentTime producer = new GpxProducerCurrentTime();
         Consumer consumer = new Consumer();
         consumer.start();
         producer.start();
@@ -14,7 +15,7 @@ public class Main {
             if (!producer.isAlive())
                 sending = false;
         }
-        Thread.sleep(5000);
+        Thread.sleep(30000);
         System.exit(0);
     }
 

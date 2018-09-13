@@ -4,8 +4,10 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         //GPXProducer producer = new GPXProducer();
-        GpxProducerCurrentTime producer = new GpxProducerCurrentTime();
-        Consumer consumer = new Consumer();
+        GpxProducerCurrentTime producer = new GpxProducerCurrentTime(10);
+        //Consumer consumer = new Consumer();
+        GpxHeartPowerPattern consumer = new GpxHeartPowerPattern();
+
         consumer.start();
         producer.start();
 

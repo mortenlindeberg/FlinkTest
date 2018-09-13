@@ -17,12 +17,14 @@ import java.net.Socket;
 public class GPXProducer extends Thread {
     private String filename;
     private int remotePort;
+    private int sleepTime;
     private ServerSocket serverSocket;
     private Socket clientSocket;
 
-    public GPXProducer() {
+    public GPXProducer(int sleepTime) {
         this.filename = "trace.gpx";
         this.remotePort = 1080;
+        this.sleepTime = sleepTime;
     }
 
     public void connect() {
@@ -115,7 +117,7 @@ public class GPXProducer extends Thread {
                 }
                 send(tuple.getPosixString()+","+tuple.getLat()+","+tuple.getLon()+","+tuple.getPower()+","+tuple.getCadence()+","+tuple.getHeartrate()+","+tuple.getTemp());
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(sleepTime);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

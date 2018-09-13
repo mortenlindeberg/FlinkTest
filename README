@@ -19,3 +19,41 @@ curl -X PUT "http://localhost:9200/gpx" -H 'Content-Type: application/json' -d'
     }
 }
 '
+
+curl -X DELETE "localhost:9200/gpx"
+curl -X DELETE "localhost:9200/warn"
+
+curl -X PUT "http://localhost:9200/gpx" -H 'Content-Type: application/json' -d'
+{
+    "settings" : {
+        "number_of_shards" : 1
+    },
+    "mappings" : {
+        "power" : {
+            "properties" : {
+                "time" : { "type" : "date", "format" : "epoch_second" },
+                "power" : { "type" : "double" },
+                "hr" : {"type" : "integer" },
+                "location" : { "type" : "geo_point" }
+            }
+        }
+    }
+}
+'
+curl -X PUT "http://localhost:9200/warn" -H 'Content-Type: application/json' -d'
+{
+    "settings" : {
+        "number_of_shards" : 1
+    },
+    "mappings" : {
+
+        "hr" : {
+            "properties" : {
+                "time" : { "type" : "date", "format" : "epoch_second" },
+                "factor" : { "type" : "double" },
+                "location" : { "type" : "geo_point" }
+            }
+        }
+    }
+}
+'

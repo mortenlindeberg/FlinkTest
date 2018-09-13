@@ -71,6 +71,11 @@
 			<artifactId>flink-connector-elasticsearch6_2.11</artifactId>
 			<version>${flink.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-cep_2.11</artifactId>
+			<version>${flink.version}</version>
+		</dependency>
 
 		<!-- explicitly add a standard loggin framework, as Flink does not have
 			a hard dependency on one specific framework by default -->
@@ -128,6 +133,12 @@
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-connector-elasticsearch6_2.11</artifactId>
+                    <version>${flink.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-cep_2.11</artifactId>
                     <version>${flink.version}</version>
                     <scope>provided</scope>
                 </dependency>

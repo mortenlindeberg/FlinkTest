@@ -19,10 +19,12 @@ public class GpxProducerCurrentTime extends Thread {
     private int remotePort;
     private ServerSocket serverSocket;
     private Socket clientSocket;
+    private long sleepTime;
 
-    public GpxProducerCurrentTime() {
+    public GpxProducerCurrentTime(long sleepTime) {
         this.filename = "trace.gpx";
         this.remotePort = 1080;
+        this.sleepTime = sleepTime;
     }
 
     public void connect() {
@@ -117,7 +119,7 @@ public class GpxProducerCurrentTime extends Thread {
                 }
                 send(tuple.getTime() + "," + tuple.getLat() + "," + tuple.getLon() + "," + tuple.getPower() + "," + tuple.getCadence() + "," + tuple.getHeartrate() + "," + tuple.getTemp());
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(sleepTime);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
